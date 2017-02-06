@@ -1,11 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void printUintLE(unsigned int value, unsigned int bit);
 void printHeader();
+int grayScale();
 
 int main(int argc, char **argv)
 {
+    if(1 < argc)
+    {
+        if(strcmp(argv[1], "-g") == 0)
+            return grayScale();
+    }
+
     printHeader();
 
     FILE *fp = freopen(NULL, "rb", stdin);
@@ -14,6 +22,30 @@ int main(int argc, char **argv)
     {
         printUintLE(pixel, 24);
     }
+}
+
+int grayScale()
+{
+    FILE *fp = freopen(NULL, "rb", stdin);
+    unsigned int pixel[256*256];
+    unsigned int max = 0;
+    unsigned int index = 0;
+    while(fscanf(fp, "%d", &pixel[index]) != EOF)
+    {
+        if(max < pixel[index])
+            max = pixel[index];
+        index++;
+    }
+
+    printHeader();
+    for(index = 0; index < 256*256; index++)
+    {
+        pixel[index] = pixel[index] | ((pixel[index] & 0xFF) << 8);
+        pixel[index] = pixel[index] | ((pixel[index] & 0xFF) << 16);
+        printUintLE(pixel[index], 24);
+    }
+
+    return 0;
 }
 
 void printHeader()
